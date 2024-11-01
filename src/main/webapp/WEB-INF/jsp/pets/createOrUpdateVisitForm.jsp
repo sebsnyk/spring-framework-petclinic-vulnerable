@@ -1,3 +1,4 @@
+<%@ page import="org.springframework.samples.petclinic.model.Visit" %>
 <%@ page session="false" trimDirectiveWhitespaces="true" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -27,9 +28,12 @@
             </tr>
             </thead>
             <tr>
-                <td><c:out value="${visit.pet.name}"/></td>
+                <%
+                    var copyVisit = (Visit) request.getAttribute("visit");
+                %>
+                <td><%= copyVisit.getPet().getName() %></td><!-- Vuln -->
                 <td><petclinic:localDate date="${visit.pet.birthDate}" pattern="yyyy/MM/dd"/></td>
-                <td><c:out value="${visit.pet.type.name}"/></td>
+                <td><%= copyVisit.getPet().getType().getName() %></td><!-- No Vuln -->
                 <td><c:out value="${visit.pet.owner.firstName} ${visit.pet.owner.lastName}"/></td>
             </tr>
         </table>

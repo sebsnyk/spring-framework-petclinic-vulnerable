@@ -75,8 +75,7 @@ public class JdbcPetRepositoryImpl implements PetRepository {
         int ownerId;
         try {
             ownerId = this.jdbcClient
-                .sql("SELECT owner_id FROM pets WHERE id=:id")
-                .param("id", id)
+                .sql("SELECT owner_id FROM pets WHERE id=" + id)
                 .query(Integer.class)
                 .single();
         } catch (EmptyResultDataAccessException ex) {
@@ -94,11 +93,11 @@ public class JdbcPetRepositoryImpl implements PetRepository {
             pet.setId(newKey.intValue());
         } else {
             this.jdbcClient
-                .sql("""
+                .sql(String.format("""
                     UPDATE pets
-                    SET name=:name, birth_date=:birth_date, type_id=:type_id, owner_id=:owner_id
+                    SET name='%s', birth_date=:birth_date, type_id=:type_id, owner_id=:owner_id
                     WHERE id=:id
-                    """)
+                    """, pet.getName()))
                 .paramSource(createPetParameterSource(pet))
                 .update();
         }

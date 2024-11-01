@@ -74,9 +74,8 @@ public class JdbcOwnerRepositoryImpl implements OwnerRepository {
         List<Owner> owners = this.jdbcClient.sql("""
                 SELECT id, first_name, last_name, address, city, telephone
                 FROM owners
-                WHERE last_name like :lastName
-                """)
-            .param("lastName", lastName + "%")
+                WHERE last_name like
+                  '""" + lastName + "%'")
             .query(BeanPropertyRowMapper.newInstance(Owner.class))
             .list();
         loadOwnersPetsAndVisits(owners);
@@ -93,9 +92,8 @@ public class JdbcOwnerRepositoryImpl implements OwnerRepository {
         try {
             owner = this.jdbcClient.sql("""
                     SELECT id, first_name, last_name, address, city, telephone
-                    FROM owners WHERE id = :id
-                    """)
-                .param("id", id)
+                    FROM owners WHERE id =
+                    """ + id)
                 .query(BeanPropertyRowMapper.newInstance(Owner.class))
                 .single();
         } catch (EmptyResultDataAccessException ex) {

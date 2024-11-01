@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collection;
 
@@ -127,7 +128,7 @@ abstract class AbstractClinicServiceTests {
 
     @Test
     @Transactional
-    public void shouldInsertPetIntoDatabaseAndGenerateId() {
+    public void shouldInsertPetIntoDatabaseAndGenerateId() throws IOException {
         Owner owner6 = this.clinicService.findOwnerById(6);
         int found = owner6.getPets().size();
 
@@ -175,7 +176,7 @@ abstract class AbstractClinicServiceTests {
 
     @Test
     @Transactional
-    public void shouldAddNewVisitForPet() {
+    public void shouldAddNewVisitForPet() throws IOException {
         Pet pet7 = this.clinicService.findPetById(7);
         int found = pet7.getVisits().size();
         Visit visit = new Visit();

@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.service;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import org.springframework.samples.petclinic.model.Owner;
@@ -37,7 +38,7 @@ public interface ClinicService {
 
     Pet findPetById(int id);
 
-    void savePet(Pet pet);
+    void savePet(Pet pet) throws IOException;
 
     void saveVisit(Visit visit);
 

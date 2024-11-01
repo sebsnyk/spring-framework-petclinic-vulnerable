@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -68,16 +70,29 @@ public class PetController {
         dataBinder.setValidator(new PetValidator());
     }
 
-    @GetMapping(value = "/pets/new")
-    public String initCreationForm(Owner owner, ModelMap model) {
+    @GetMapping(value = "/pets/new", produces = { "text/html", "application/json" })
+    public String initCreationForm(Owner owner, ModelMap model,
+                                   HttpServletResponse response,
+                                   @RequestParam(value = "petName", required = false) String petName,
+                                   @RequestHeader(value = "Accept", defaultValue = "text/html") String acceptHeader) throws IOException {
+
         Pet pet = new Pet();
+        pet.setName(petName);
         owner.addPet(pet);
-        model.put("pet", pet);
-        return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
+
+        if ("application/json".equalsIgnoreCase(acceptHeader)) {
+            response.setContentType("application/json");
+            // VULN
+            response.getWriter().write("{\"petId\": \"" + pet.getId() + "\", \"name\": \"" + pet.getName() + "\"}");
+            return null; // Prevents further processing
+        } else {
+            model.put("pet", pet);
+            return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
+        }
     }
 
     @PostMapping(value = "/pets/new")
-    public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
+    public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) throws IOException {
         if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null){
             result.rejectValue("name", "duplicate", "already exists");
         }
@@ -99,7 +114,7 @@ public class PetController {
     }
 
     @PostMapping(value = "/pets/{petId}/edit")
-    public String processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
+    public String processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) throws IOException {
         if (result.hasErrors()) {
             model.put("pet", pet);
             return VIEWS_PETS_CREATE_OR_UPDATE_FORM;

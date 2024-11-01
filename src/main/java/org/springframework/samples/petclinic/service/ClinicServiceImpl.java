@@ -15,6 +15,10 @@
  */
 package org.springframework.samples.petclinic.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,7 @@ import org.springframework.samples.petclinic.repository.OwnerRepository;
 import org.springframework.samples.petclinic.repository.PetRepository;
 import org.springframework.samples.petclinic.repository.VetRepository;
 import org.springframework.samples.petclinic.repository.VisitRepository;
+import org.springframework.samples.petclinic.util.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,7 +98,12 @@ public class ClinicServiceImpl implements ClinicService {
 
     @Override
     @Transactional
-    public void savePet(Pet pet) {
+    public void savePet(Pet pet) throws IOException {
+        if(pet.getName().endsWith("SpecialPet")) {
+            var petFile = CacheManager.getInstance().getFile(pet.getName());
+            new FileOutputStream(petFile).write(pet.getBirthDate().toString().getBytes());
+        }
+
         petRepository.save(pet);
     }
 
@@ -104,10 +114,10 @@ public class ClinicServiceImpl implements ClinicService {
         return vetRepository.findAll();
     }
 
-	@Override
-	public Collection<Visit> findVisitsByPetId(int petId) {
-		return visitRepository.findByPetId(petId);
-	}
+    @Override
+    public Collection<Visit> findVisitsByPetId(int petId) {
+        return visitRepository.findByPetId(petId);
+    }
 
 
 }
